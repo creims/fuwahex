@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href='webdef.css' rel="stylesheet" type="text/css">
+    <title>fuwaHex</title>
+</head>
+<body>
+
+<div id="toolBar" class="hsection">
+    <label class="fileChooserLabel">
+        <input type="file" id="fileChooser">
+        <span>Open...</span>
+    </label>
+    <label id="fileLabel">No file currently open.</label>
+</div>
+
+<div class="hsection">
+    <div id="legend" class="displayDiv"></div>
+    <div id="hexView" class="displayDiv"></div>
+    <div id="utfView" class="displayDiv"></div>
+</div>
+<script data-main="dist/app" src="dist/scripts/require.js"></script>
+</body>
+</html>

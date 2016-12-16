@@ -1,0 +1,67 @@
+body {
+    font-family: "Courier New", Courier, monospace; /*The formatting depends on monospace font*/
+}
+
+.hsection {
+    clear: both;
+}
+
+#toolBar {
+    border: 1px solid #999;
+    border-radius: 2px;
+    background: #EEE;
+}
+
+/* STYLE FOR LOAD BUTTON */
+label.fileChooserLabel input[type="file"] {
+    position: fixed;
+    top: -1000px; /*This makes the default filechooser graphics fly away, wheee, hackity hack hack*/
+}
+
+.fileChooserLabel {
+    border: 2px solid #AAA;
+    border-radius: 4px;
+    padding: 2px 5px;
+    margin: 2px 5px;
+    background: #DDD;
+    display: inline-block;
+}
+.fileChooserLabel:hover {
+    background: #CCC;
+}
+.fileChooserLabel:active {
+    background: #CCF;
+}
+.fileChooserLabel :invalid + span {
+    color: #A44;
+}
+.fileChooserLabel :valid + span {
+    color: #4A4;
+}
+
+/* STYLE FOR HEX VIEWING AREA */
+.displayDiv {
+    padding: 5px;
+    border: solid grey 2px;
+    float: left;
+    margin: 5px;
+    height: 600px;
+    display: inline-block;
+}
+
+#legend {
+    width: 5ch;
+    text-align: right;
+    background-color: rgba(25, 125, 125, .2);
+}
+
+#hexView {
+    width: 60ch;
+    background-color: rgba(25, 25, 25, .2);
+}
+
+#utfView {
+    width: 20ch;
+    background-color: rgba(25, 25, 125, .2);
+    white-space: nowrap; /*Otherwise, some printable characters would cause random wraps on some browsers*/
+}
