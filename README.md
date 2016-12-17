@@ -17,3 +17,4 @@ NOTE: This is NOT meant to be a hex editor, merely a hex viewer.
 ## To Do
 - Scroll bar and seek functions
 - Resize data views via user-supplied row/column counts
+- Look into removing excess files from the GitHub repository. Seriously, there are 5000 files in the nodemodules folder. I definitely don't use all of them. 
