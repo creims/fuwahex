@@ -15,5 +15,5 @@ NOTE: This is NOT meant to be a hex editor, merely a hex viewer.
 - Scroll bar and seek functions to view the bytes you're interested in
 
 ## To Do
-- Scroll bar and seek functions
+- Seek function
 - Resize data views via user-supplied row/column counts
