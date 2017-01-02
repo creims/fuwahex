@@ -78,17 +78,16 @@ requirejs(["./hexhandler2"], function (hexHandler) {
         });
     };
 
-    const generateUtfArray = function generateUtfArray(data) {
+    const generateUtfString = function generateUtfString(data) {
         // All non-printable characters replaced with a '.'
         return String.fromCharCode.apply(null, data)
-            .replace(/[\x00-\x1F\x7F-\xA0\s]/g, '.')
-            .split('');
+            .replace(/[\x00-\x1F\x7F-\xA0\s]/g, '.');
     };
 
     const legendGen = function* legendGen(startingRow) {
         let counter = startingRow;
 
-        while(true) {
+        while (true) {
             yield counter++ * cols;
         }
     };
@@ -102,18 +101,32 @@ requirejs(["./hexhandler2"], function (hexHandler) {
         utfView.innerHTML = generateSpans(numBytes, '', cols, 'u');
     };
 
+    const escapeHTML = function escapeHTML(c) {
+        if(!c) {
+            return '';
+        }
+
+        return c.replace(/&"<>/g, ()=> ({
+            '&': "&amp;",
+            '"': "&quot;",
+            '<': "&lt;",
+            '>': "&gt;"
+        }[c]));
+    };
+
     const updateViews = function updateViews(data) {
         const hexIter = generateHexArray(data)[Symbol.iterator]();
-        const utfIter = generateUtfArray(data)[Symbol.iterator]();
+        const utfIter = generateUtfString(data)[Symbol.iterator]();
 
         // These work by replacing the inside of each span with the next new value
         hexView.innerHTML = hexView.innerHTML.replace(/">(?:[0-9A-F]{2})?</g, () => `">${hexIter.next().value || ''}<`);
 
         //Checks for the closing / character in </span> to prevent false positives in case the character is '<'
-        utfView.innerHTML = utfView.innerHTML.replace(/">.?<\//g, () => `">${utfIter.next().value || ''}<\/`);
+        //Must escape some characters to avoid HTML doing HTML things
+        utfView.innerHTML = utfView.innerHTML.replace(/">.*?<\//g, () => `">${escapeHTML(utfIter.next().value)}<\/`);
 
         //update scroll bars
-        if(currRow === maxRow) {
+        if (currRow === maxRow) {
             btnScrollDown.disabled = true;
             btnChunkDown.disabled = true;
         } else {
@@ -121,7 +134,7 @@ requirejs(["./hexhandler2"], function (hexHandler) {
             btnChunkDown.disabled = false;
         }
 
-        if(currRow === 0) {
+        if (currRow === 0) {
             btnScrollUp.disabled = true;
             btnChunkUp.disabled = true;
         } else {
@@ -158,7 +171,7 @@ requirejs(["./hexhandler2"], function (hexHandler) {
 
                     currRow = 0;
                     maxRow = Math.ceil(file.size / cols) - rows;
-                    if(maxRow < 0) {
+                    if (maxRow < 0) {
                         maxRow = 0;
                     }
 
@@ -187,8 +200,8 @@ requirejs(["./hexhandler2"], function (hexHandler) {
             highlight(event.target.id);
         });
 
-        btnScrollUp.addEventListener('click', function() {
-            if(currRow === 0) {
+        btnScrollUp.addEventListener('click', function () {
+            if (currRow === 0) {
                 return;
             }
 
@@ -196,8 +209,8 @@ requirejs(["./hexhandler2"], function (hexHandler) {
             updateData();
         });
 
-        btnScrollDown.addEventListener('click', function() {
-            if(currRow === maxRow) {
+        btnScrollDown.addEventListener('click', function () {
+            if (currRow === maxRow) {
                 return;
             }
 
@@ -205,26 +218,26 @@ requirejs(["./hexhandler2"], function (hexHandler) {
             updateData();
         });
 
-        btnChunkUp.addEventListener('click', function() {
-            if(currRow === 0) {
+        btnChunkUp.addEventListener('click', function () {
+            if (currRow === 0) {
                 return;
             }
 
             currRow -= rows - 1;
-            if(currRow < 0) {
+            if (currRow < 0) {
                 currRow = 0;
             }
 
             updateData();
         });
 
-        btnChunkDown.addEventListener('click', function() {
-            if(currRow === maxRow) {
+        btnChunkDown.addEventListener('click', function () {
+            if (currRow === maxRow) {
                 return;
             }
 
             currRow += rows - 1;
-            if(currRow > maxRow) {
+            if (currRow > maxRow) {
                 currRow = maxRow;
             }
 

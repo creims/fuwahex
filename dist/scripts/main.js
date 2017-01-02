@@ -81,9 +81,9 @@ requirejs(["./hexhandler2"], function (hexHandler) {
         });
     };
 
-    var generateUtfArray = function generateUtfArray(data) {
+    var generateUtfString = function generateUtfString(data) {
         // All non-printable characters replaced with a '.'
-        return String.fromCharCode.apply(null, data).replace(/[\x00-\x1F\x7F-\xA0\s]/g, '.').split('');
+        return String.fromCharCode.apply(null, data).replace(/[\x00-\x1F\x7F-\xA0\s]/g, '.');
     };
 
     var legendGen = regeneratorRuntime.mark(function legendGen(startingRow) {
@@ -124,9 +124,24 @@ requirejs(["./hexhandler2"], function (hexHandler) {
         utfView.innerHTML = generateSpans(numBytes, '', cols, 'u');
     };
 
+    var escapeHTML = function escapeHTML(c) {
+        if (!c) {
+            return '';
+        }
+
+        return c.replace(/&"<>/g, function () {
+            return {
+                '&': "&amp;",
+                '"': "&quot;",
+                '<': "&lt;",
+                '>': "&gt;"
+            }[c];
+        });
+    };
+
     var updateViews = function updateViews(data) {
         var hexIter = generateHexArray(data)[Symbol.iterator]();
-        var utfIter = generateUtfArray(data)[Symbol.iterator]();
+        var utfIter = generateUtfString(data)[Symbol.iterator]();
 
         // These work by replacing the inside of each span with the next new value
         hexView.innerHTML = hexView.innerHTML.replace(/">(?:[0-9A-F]{2})?</g, function () {
@@ -134,8 +149,9 @@ requirejs(["./hexhandler2"], function (hexHandler) {
         });
 
         //Checks for the closing / character in </span> to prevent false positives in case the character is '<'
-        utfView.innerHTML = utfView.innerHTML.replace(/">.?<\//g, function () {
-            return "\">" + (utfIter.next().value || '') + "</";
+        //Must escape some characters to avoid HTML doing HTML things
+        utfView.innerHTML = utfView.innerHTML.replace(/">.*?<\//g, function () {
+            return "\">" + escapeHTML(utfIter.next().value) + "</";
         });
 
         //update scroll bars
