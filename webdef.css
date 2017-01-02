@@ -12,6 +12,16 @@ body {
     background: #EEE;
 }
 
+button {
+    width: 100%;
+    height: 24%;
+    margin-bottom: 7px;
+}
+
+#scrollBar button:last-child {
+    margin: 0px;
+}
+
 /* STYLE FOR LOAD BUTTON */
 label.fileChooserLabel input[type="file"] {
     position: fixed;
@@ -64,4 +74,8 @@ label.fileChooserLabel input[type="file"] {
     width: 20ch;
     background-color: rgba(25, 25, 125, .2);
     white-space: nowrap; /*Otherwise, some printable characters would cause random wraps on some browsers*/
+}
+
+#scrollBar {
+    width: 7ch;
 }

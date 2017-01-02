@@ -11,40 +11,48 @@ requirejs(["./hexhandler2"], function (hexHandler) {
     var legend = document.getElementById('legend');
     var fileLabel = document.getElementById('fileLabel');
 
+    var btnScrollUp = document.getElementById('scrollUp');
+    var btnScrollDown = document.getElementById('scrollDown');
+    var btnChunkUp = document.getElementById('chunkUp');
+    var btnChunkDown = document.getElementById('chunkDown');
+
     var rows = 20;
     var cols = 20;
     var numBytes = rows * cols;
 
-    var hexHighlit = undefined;
-    var utfHighlit = undefined;
+    var currRow = 0;
+    var maxRow = 0;
+
+    var highlitSpan = undefined;
 
     var highlight = function highlight(spanId) {
-        if (hexHighlit !== undefined) {
-            hexHighlit.style.backgroundColor = hexView.style.backgroundColor;
+        spanId = spanId.substr(1);
+
+        if (highlitSpan !== undefined) {
+            document.getElementById('h' + highlitSpan).style.backgroundColor = hexView.style.backgroundColor;
         }
 
-        if (utfHighlit !== undefined) {
-            utfHighlit.style.backgroundColor = utfView.style.backgroundColor;
+        if (highlitSpan !== undefined) {
+            document.getElementById('u' + highlitSpan).style.backgroundColor = utfView.style.backgroundColor;
         }
 
-        hexHighlit = hexView.getElementsByClassName(spanId)[0];
-        hexHighlit.style.backgroundColor = highlightColor;
+        document.getElementById('h' + spanId).style.backgroundColor = highlightColor;
+        document.getElementById('u' + spanId).style.backgroundColor = highlightColor;
 
-        utfHighlit = utfView.getElementsByClassName(spanId)[0];
-        utfHighlit.style.backgroundColor = highlightColor;
+        highlitSpan = spanId;
     };
 
     var generateSpans = function generateSpans(numSpans) {
         var separator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
         var breakEvery = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
-        var classNumbering = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+        var idNumbering = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : undefined;
 
         var spans = '';
         for (var i = 1; i <= numSpans; i++) {
             spans += '<span';
 
-            if (classNumbering) {
-                spans += " class=\"" + i + "\"";
+            if (idNumbering !== undefined) {
+                spans += " id=\"" + idNumbering + i + "\"";
             }
             spans += '></span>';
 
@@ -78,10 +86,6 @@ requirejs(["./hexhandler2"], function (hexHandler) {
         return String.fromCharCode.apply(null, data).replace(/[\x00-\x1F\x7F-\xA0\s]/g, '.').split('');
     };
 
-    var initialize = function initialize() {
-        resizeWindows();
-    };
-
     var legendGen = regeneratorRuntime.mark(function legendGen(startingRow) {
         var counter;
         return regeneratorRuntime.wrap(function legendGen$(_context) {
@@ -112,65 +116,146 @@ requirejs(["./hexhandler2"], function (hexHandler) {
     });
 
     var resizeWindows = function resizeWindows() {
-        // We use ch (width of 0) because we're using a fixed-width font
+        // We use ch (width of '0' char) because we're using a fixed-width font
         hexView.style.width = cols * 3 + "ch";
         utfView.style.width = cols + "ch";
 
-        hexView.innerHTML = generateSpans(numBytes, ' ', cols);
-        utfView.innerHTML = generateSpans(numBytes, '', cols);
-
-        var gen = legendGen(0);
-        legend.innerHTML = generateSpans(rows, '', 1, false).replace(/><\//g, function () {
-            return ">" + gen.next().value + "</";
-        });
+        hexView.innerHTML = generateSpans(numBytes, ' ', cols, 'h');
+        utfView.innerHTML = generateSpans(numBytes, '', cols, 'u');
     };
 
     var updateViews = function updateViews(data) {
         var hexIter = generateHexArray(data)[Symbol.iterator]();
         var utfIter = generateUtfArray(data)[Symbol.iterator]();
 
-        // This works by replacing the inside of each span with
-        hexView.innerHTML = hexView.innerHTML.replace(/"></g, function () {
-            return "\">" + hexIter.next().value + "<";
+        // These work by replacing the inside of each span with the next new value
+        hexView.innerHTML = hexView.innerHTML.replace(/">(?:[0-9A-F]{2})?</g, function () {
+            return "\">" + (hexIter.next().value || '') + "<";
         });
-        utfView.innerHTML = utfView.innerHTML.replace(/"></g, function () {
-            return "\">" + utfIter.next().value + "<";
+
+        //Checks for the closing / character in </span> to prevent false positives in case the character is '<'
+        utfView.innerHTML = utfView.innerHTML.replace(/">.?<\//g, function () {
+            return "\">" + (utfIter.next().value || '') + "</";
+        });
+
+        //update scroll bars
+        if (currRow === maxRow) {
+            btnScrollDown.disabled = true;
+            btnChunkDown.disabled = true;
+        } else {
+            btnScrollDown.disabled = false;
+            btnChunkDown.disabled = false;
+        }
+
+        if (currRow === 0) {
+            btnScrollUp.disabled = true;
+            btnChunkUp.disabled = true;
+        } else {
+            btnScrollUp.disabled = false;
+            btnChunkUp.disabled = false;
+        }
+
+        //update legend
+        var gen = legendGen(currRow);
+        legend.innerHTML = generateSpans(rows, '', 1, false).replace(/><\//g, function () {
+            return ">" + gen.next().value + "</";
         });
     };
 
-    fileChooser.addEventListener('change', function () {
-        var file = fileChooser.files[0];
-
-        if (!file) {
-            return;
-        }
-
-        hexHandler.setFile(file);
-        hexHandler.getBytes(0, numBytes).then(function (data) {
+    var updateData = function updateData() {
+        hexHandler.getBytes(currRow * cols, numBytes).then(function (data) {
             updateViews(data);
-            fileLabel.textContent = file.name;
-        }, function (error) {
-            console.log(error);
         });
-    });
+    };
 
-    hexView.addEventListener('click', function (event) {
-        //don't highlight the entire area
-        if (event.target === hexView) {
-            return;
-        }
+    var initialize = function initialize() {
+        resizeWindows();
 
-        highlight(event.target.classList[0]);
-    });
+        fileChooser.addEventListener('change', function () {
+            var file = fileChooser.files[0];
 
-    utfView.addEventListener('click', function (event) {
-        //don't highlight the entire area
-        if (event.target === utfView) {
-            return;
-        }
+            if (!file) {
+                return;
+            }
 
-        highlight(event.target.classList[0]);
-    });
+            hexHandler.setFile(file);
+            hexHandler.getBytes(0, numBytes).then(function (data) {
+                fileLabel.textContent = file.name;
+
+                currRow = 0;
+                maxRow = Math.ceil(file.size / cols) - rows;
+                if (maxRow < 0) {
+                    maxRow = 0;
+                }
+
+                updateViews(data);
+            }, function (error) {
+                console.log(error);
+            });
+        });
+
+        hexView.addEventListener('click', function (event) {
+            //don't highlight the entire area
+            if (event.target === hexView) {
+                return;
+            }
+
+            highlight(event.target.id);
+        });
+
+        utfView.addEventListener('click', function (event) {
+            //don't highlight the entire area
+            if (event.target === utfView) {
+                return;
+            }
+
+            highlight(event.target.id);
+        });
+
+        btnScrollUp.addEventListener('click', function () {
+            if (currRow === 0) {
+                return;
+            }
+
+            currRow--;
+            updateData();
+        });
+
+        btnScrollDown.addEventListener('click', function () {
+            if (currRow === maxRow) {
+                return;
+            }
+
+            currRow++;
+            updateData();
+        });
+
+        btnChunkUp.addEventListener('click', function () {
+            if (currRow === 0) {
+                return;
+            }
+
+            currRow -= rows - 1;
+            if (currRow < 0) {
+                currRow = 0;
+            }
+
+            updateData();
+        });
+
+        btnChunkDown.addEventListener('click', function () {
+            if (currRow === maxRow) {
+                return;
+            }
+
+            currRow += rows - 1;
+            if (currRow > maxRow) {
+                currRow = maxRow;
+            }
+
+            updateData();
+        });
+    };
 
     initialize();
 });

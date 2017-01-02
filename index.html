@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
     <meta charset="UTF-8">
     <link href='webdef.css' rel="stylesheet" type="text/css">
     <title>fuwaHex</title>
@@ -19,6 +20,12 @@
     <div id="legend" class="displayDiv"></div>
     <div id="hexView" class="displayDiv"></div>
     <div id="utfView" class="displayDiv"></div>
+    <div id="scrollBar" class="displayDiv">
+        <button id="scrollUp" disabled><i class="fa fa-angle-up fa-5x"></i></button>
+        <button id="chunkUp" disabled><i class="fa fa-angle-double-up fa-5x"></i></button>
+        <button id="chunkDown" disabled><i class="fa fa-angle-double-down fa-5x"></i></button>
+        <button id="scrollDown" disabled><i class="fa fa-angle-down fa-5x"></i></button>
+    </div>
 </div>
 <script data-main="dist/app" src="dist/scripts/require.js"></script>
 </body>
