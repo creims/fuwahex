@@ -115,7 +115,7 @@ const resizeWindows = function resizeWindows() {
         .filter(s => s.nodeName === 'SPAN');
     utfSpans = Array.from(utfView.children)
         .filter(s => s.nodeName === 'SPAN');
-    legendSpans = Array.from(legendView.children)
+    legendSpans = Array.from(legend.children)
         .filter(s => s.nodeName === 'SPAN');
 };
 
