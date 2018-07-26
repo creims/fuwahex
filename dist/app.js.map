@@ -1,1 +1,0 @@
-{"version":3,"sources":["../app.js"],"names":["requirejs","config","baseUrl"],"mappings":";;AAAA;AACAA,UAAUC,MAAV,CAAiB;AACbC,aAAS;AADI,CAAjB;;AAIAF,UAAU,CAAC,MAAD,CAAV","file":"app.js","sourcesContent":["//This file is the starting point\r\nrequirejs.config({\r\n    baseUrl: 'scripts'\r\n});\r\n\r\nrequirejs(['main']);"]}

@@ -1,12 +1,17 @@
 # fuwahex
-A light hex viewer made as a learning project. For those wondering, "fuwa" refers to the Japanese term "fuwafuwa," meaning "light and airy". This project is inspired by the free hex editor Frhed: http://frhed.sourceforge.net/en/
+A light hex viewer made as a learning project.
 
-NOTE: This is NOT meant to be a hex editor, merely a hex viewer.
+For those wondering, "fuwa" refers to the Japanese term "fuwafuwa" (ÉtÉèÉtÉè), an onomatopoeia meaning "frivolously," "soft," or "buoyantly."
+
+This project is inspired by the free hex editor Frhed: http://frhed.sourceforge.net/en/
+
+NOTE: Unlike Frhed, this is NOT meant to be a hex editor, merely a hex viewer.
 
 ## Project Goals
 - Code a useful thing in JavaScript!
 - Use the new ECMAScript 6 additions where they make sense (read: everywhere!)
-- Get used to using transpilation (babel) and a module system (require.js)
+- ~~Get used to using transpilation (babel) and a module system (require.js)~~
+- ^ Updated to use ES6 modules now that modern browsers support them. Not as portable, but simpler.
 
 ## Desired Features
 - Should be able to load a local file and view the file's bytes
