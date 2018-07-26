@@ -13,8 +13,8 @@ const btnScrollDown = document.getElementById('scrollDown');
 const btnChunkUp = document.getElementById('chunkUp');
 const btnChunkDown = document.getElementById('chunkDown');
 
-let rows = 15;
-let cols = 40;
+let rows = 40;
+let cols = 15;
 let numBytes = rows * cols;
 
 let currRow = 0;
@@ -22,6 +22,7 @@ let maxRow = 0;
 
 let highlitSpan = undefined;
 
+// Given a span ID, highlights the corresponding character and hex code in both hex and utf views
 const highlight = function highlight(spanId) {
     spanId = spanId.substr(1);
 
@@ -39,6 +40,8 @@ const highlight = function highlight(spanId) {
     highlitSpan = spanId;
 };
 
+// Generates an HTML string containing spans
+// Called once for each view (hex, utf, legend) when the view is resized
 const generateSpans = function generateSpans(numSpans,
     separator = '',
     breakEvery = -1,
@@ -64,6 +67,7 @@ const generateSpans = function generateSpans(numSpans,
     return spans;
 };
 
+// Formats an array of characters into displayable hex format
 const generateHexArray = function generateHexArray(data) {
     return Array.prototype.map.call(data, function(datum) {
         let hexArray = datum
@@ -78,12 +82,13 @@ const generateHexArray = function generateHexArray(data) {
     });
 };
 
+// Replaces non-printable characters in a string with a '.'
 const generateUtfString = function generateUtfString(data) {
-    // All non-printable characters replaced with a '.'
     return String.fromCharCode.apply(null, data)
-        .replace(/[\x00-\x1F\x7F-\xA0\s]/g, '.');
+        .replace(/[^\x20-\x7E]+/g, '.');
 };
 
+// Yields the byte offset of the first byte displayed on a row
 const legendGen = function* legendGen(startingRow) {
     let counter = startingRow;
 
@@ -92,6 +97,7 @@ const legendGen = function* legendGen(startingRow) {
     }
 };
 
+// Resize the hex, utf, and legend views on init or when rows/columns change
 const resizeWindows = function resizeWindows() {
     // We use ch (width of '0' char) because we're using a fixed-width font
     hexView.style.width = `${cols * 3}ch`;
@@ -102,41 +108,19 @@ const resizeWindows = function resizeWindows() {
     legend.innerHTML = generateSpans(rows, '', 1, 'l');
 };
 
-const escapeHTML = function escapeHTML(c) {
-    if (!c) {
-        return '';
-    }
-
-    return c.replace(/&"<>/g, () => ({
-        '&': "&amp;",
-        '"': "&quot;",
-        '<': "&lt;",
-        '>': "&gt;"
-    } [c]));
-};
-
+// Populates the hex, utf, and legend views with a chunk of bytes
 const updateViews = function updateViews(data) {
     const hexIter = generateHexArray(data)[Symbol.iterator]();
     const utfIter = generateUtfString(data)[Symbol.iterator]();
     const gen = legendGen(currRow);
 
-    // These work by replacing the inside of each span with the next new value
-    //hexView.innerHTML = hexView.innerHTML.replace(/">(?:[0-9A-F]{2})?</g, () => `">${hexIter.next().value || ''}<`);
-
-    //Checks for the closing / character in </span> to prevent false positives in case the character is '<'
-    //Must escape some characters to avoid HTML doing HTML things
-    //utfView.innerHTML = utfView.innerHTML.replace(/">.*?<\//g, () => `">${escapeHTML(utfIter.next().value)}<\/`);
-
-    /*legend.innerHTML = generateSpans(rows, '', 1, false)
-        .replace(/><\//g, () => `>${}</`);*/
-
     // Iterates through the children updating them. Should be ~10 times faster than regex
-    for(let i = 0; i < numBytes; i++) {
-      hexView.children[i].textContent = hexIter.next().value;
-      utfView.children[i].textContent = utfIter.next().value;
+    for (let i = 0; i < numBytes; i++) {
+        hexView.children[i].textContent = hexIter.next().value;
+        utfView.children[i].textContent = utfIter.next().value;
     }
 
-    for(let s of legend.children) {
+    for (let s of legend.children) {
         s.textContent = gen.next().value;
     }
 
@@ -158,6 +142,7 @@ const updateViews = function updateViews(data) {
     }
 };
 
+// Read a chunk of bytes from the file and update the views
 const updateData = function updateData() {
     hexHandler.getBytes(currRow * cols, numBytes).then(function(data) {
         updateViews(data);

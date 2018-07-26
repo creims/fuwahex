@@ -7,6 +7,7 @@ handler.setFile = function(file) {
     fileRef = file;
 };
 
+// Read an array of bytes from fileRef if possible
 handler.getBytes = function(offset, size) {
     return new Promise(
         function(resolve, reject) {
