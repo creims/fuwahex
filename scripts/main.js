@@ -22,6 +22,10 @@ let maxRow = 0;
 
 let highlitSpan = undefined;
 
+let hexSpans = undefined;
+let utfSpans = undefined;
+let legendSpans = undefined;
+
 // Given a span ID, highlights the corresponding character and hex code in both hex and utf views
 const highlight = function highlight(spanId) {
     spanId = spanId.substr(1);
@@ -58,7 +62,7 @@ const generateSpans = function generateSpans(numSpans,
         //We need to manually add breaks because whitespace wraps are disabled in CSS. This is because
         //some of the printed characters also print newlines on Chrome etc and would mess up formatting
         if (breakEvery > 0 && (i % breakEvery === 0)) {
-            //spans += '<br>';
+            spans += '<br>';
         } else { // If there's no break, we separate with the separator
             spans += separator;
         }
@@ -106,6 +110,13 @@ const resizeWindows = function resizeWindows() {
     hexView.innerHTML = generateSpans(numBytes, ' ', cols, 'h');
     utfView.innerHTML = generateSpans(numBytes, '', cols, 'u');
     legend.innerHTML = generateSpans(rows, '', 1, 'l');
+
+    hexSpans = Array.from(hexView.children)
+        .filter(s => s.nodeName === 'SPAN');
+    utfSpans = Array.from(utfView.children)
+        .filter(s => s.nodeName === 'SPAN');
+    legendSpans = Array.from(legendView.children)
+        .filter(s => s.nodeName === 'SPAN');
 };
 
 // Populates the hex, utf, and legend views with a chunk of bytes
@@ -116,11 +127,11 @@ const updateViews = function updateViews(data) {
 
     // Iterates through the children updating them. Should be ~10 times faster than regex
     for (let i = 0; i < numBytes; i++) {
-        hexView.children[i].textContent = hexIter.next().value;
-        utfView.children[i].textContent = utfIter.next().value;
+        hexSpans[i].textContent = hexIter.next().value;
+        utfSpans[i].textContent = utfIter.next().value;
     }
 
-    for (let s of legend.children) {
+    for (let s of legendSpans) {
         s.textContent = gen.next().value;
     }
 
