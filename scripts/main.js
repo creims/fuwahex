@@ -58,7 +58,7 @@ const generateSpans = function generateSpans(numSpans,
         //We need to manually add breaks because whitespace wraps are disabled in CSS. This is because
         //some of the printed characters also print newlines on Chrome etc and would mess up formatting
         if (breakEvery > 0 && (i % breakEvery === 0)) {
-            spans += '<br></br>';
+            //spans += '<br>';
         } else { // If there's no break, we separate with the separator
             spans += separator;
         }
