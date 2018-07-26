@@ -1,7 +1,7 @@
 # fuwahex
 A light hex viewer made as a learning project.
 
-For those wondering, "fuwa" refers to the Japanese term "fuwafuwa" (ƒtƒƒtƒ), an onomatopoeia meaning "frivolously," "soft," or "buoyantly."
+For those wondering, "fuwa" refers to the Japanese term "fuwafuwa" (ãƒ•ãƒ¯ãƒ•ãƒ¯), an onomatopoeia meaning "frivolously," "soft," or "buoyantly."
 
 This project is inspired by the free hex editor Frhed: http://frhed.sourceforge.net/en/
 
