@@ -13,8 +13,8 @@ const btnScrollDown = document.getElementById('scrollDown');
 const btnChunkUp = document.getElementById('chunkUp');
 const btnChunkDown = document.getElementById('chunkDown');
 
-let rows = 20;
-let cols = 20;
+let rows = 15;
+let cols = 40;
 let numBytes = rows * cols;
 
 let currRow = 0;
@@ -99,6 +99,7 @@ const resizeWindows = function resizeWindows() {
 
     hexView.innerHTML = generateSpans(numBytes, ' ', cols, 'h');
     utfView.innerHTML = generateSpans(numBytes, '', cols, 'u');
+    legend.innerHTML = generateSpans(rows, '', 1, 'l');
 };
 
 const escapeHTML = function escapeHTML(c) {
@@ -117,16 +118,29 @@ const escapeHTML = function escapeHTML(c) {
 const updateViews = function updateViews(data) {
     const hexIter = generateHexArray(data)[Symbol.iterator]();
     const utfIter = generateUtfString(data)[Symbol.iterator]();
+    const gen = legendGen(currRow);
 
     // These work by replacing the inside of each span with the next new value
-    // TODO: ...Just memoize on resize/init. It's 10 times faster besides being less wacky
-    hexView.innerHTML = hexView.innerHTML.replace(/">(?:[0-9A-F]{2})?</g, () => `">${hexIter.next().value || ''}<`);
+    //hexView.innerHTML = hexView.innerHTML.replace(/">(?:[0-9A-F]{2})?</g, () => `">${hexIter.next().value || ''}<`);
 
     //Checks for the closing / character in </span> to prevent false positives in case the character is '<'
     //Must escape some characters to avoid HTML doing HTML things
-    utfView.innerHTML = utfView.innerHTML.replace(/">.*?<\//g, () => `">${escapeHTML(utfIter.next().value)}<\/`);
+    //utfView.innerHTML = utfView.innerHTML.replace(/">.*?<\//g, () => `">${escapeHTML(utfIter.next().value)}<\/`);
 
-    //update scroll bars
+    /*legend.innerHTML = generateSpans(rows, '', 1, false)
+        .replace(/><\//g, () => `>${}</`);*/
+
+    // Iterates through the children updating them. Should be ~10 times faster than regex
+    for(let i = 0; i < numBytes; i++) {
+      hexView.children[i].textContent = hexIter.next().value;
+      utfView.children[i].textContent = utfIter.next().value;
+    }
+
+    for(let s of legend.children) {
+        s.textContent = gen.next().value;
+    }
+
+    // Update scroll bars
     if (currRow === maxRow) {
         btnScrollDown.disabled = true;
         btnChunkDown.disabled = true;
@@ -142,11 +156,6 @@ const updateViews = function updateViews(data) {
         btnScrollUp.disabled = false;
         btnChunkUp.disabled = false;
     }
-
-    //update legend
-    const gen = legendGen(currRow);
-    legend.innerHTML = generateSpans(rows, '', 1, false)
-        .replace(/><\//g, () => `>${gen.next().value}</`);
 };
 
 const updateData = function updateData() {
