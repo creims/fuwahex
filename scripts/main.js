@@ -87,9 +87,10 @@ const generateHexArray = function generateHexArray(data) {
 };
 
 // Replaces non-printable characters in a string with a '.'
+
 const generateUtfString = function generateUtfString(data) {
     return String.fromCharCode.apply(null, data)
-        .replace(/[^\x20-\x7E]+/g, '.');
+        .replace(/[\x00-\x20\x7F-\xA0\xAD]/g, '.');
 };
 
 // Yields the byte offset of the first byte displayed on a row
@@ -125,7 +126,7 @@ const updateViews = function updateViews(data) {
     const utfIter = generateUtfString(data)[Symbol.iterator]();
     const gen = legendGen(currRow);
 
-    // Iterates through the children updating them. Should be ~10 times faster than regex
+    // Iterate through the children updating them. Should be ~10 times faster than regex
     for (let i = 0; i < numBytes; i++) {
         hexSpans[i].textContent = hexIter.next().value;
         utfSpans[i].textContent = utfIter.next().value;
